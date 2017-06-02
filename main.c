@@ -1,38 +1,28 @@
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-
 #include "wordsort.h"
 
-//SORT FUNCTIONS
-int alphaForward(const void * s, const void  * t);
-int alphaReverse(const void * s, const void  * t);
-int compareLength(const void * s, const void  * t);
-int byNumberValue(const void * s, const void  * t);
-int scrabbleValue(const void * s, const void  * t);
+void addWords(char **words, int * count, char * filename);
+void addUniqueWords(char **words, int * count, char * filename);
 
-void addWords(char **words, int count, char * filename);
-void addUniqueWords(char **words, int count, char * filename);
-void printHelp(void);
-int scrabbleScore(const char * word);
 
 int main(int argc, char **argv)
 {
 	int wordcount;
 	int argnum = 0, rev = 0, printNum; 
 	char **words, *p, option = 'a';
-	char filename[50];
+	char filename[50]; //, input[50], delims[] = {" \t\n"}, optpdelims[] = {" \t\n,.:;'\"!@#$%^&*()+-_"};
 	
 	//FUNCTION POINTERS USED BASED ON OPTIONS
-	void (*add)(char**, int, char *) = addWords;
+	void (*add)(char**, int *, char *) = addWords;
 	int (*compare)(const void * s, const void  * t) = alphaForward; 
 	int (*prevop)();
 	
+	
+	//strcpy(filename, stdin);
 	wordcount = wordCounter(argc, argv + 1);
 	printf("End: [%d] \n", wordcount);
 	words = malloc(wordcount * sizeof(words));
 	
-	//Default is to print all words
+	//Default is to print all words -> Wordcount can change
 	printNum = wordcount;
 	
 	if (words == NULL)
@@ -95,6 +85,11 @@ int main(int argc, char **argv)
 					//WILL BE FOLLOWED BY A NUMBER OF LINES TO PRINT
 					printNum = atoi(argv[++argnum]);
 					printf("LETS CAP IT at %d Words\n", printNum);
+					if ( printNum < 1) 
+					{
+						printHelp();
+						exit(3);
+					}
 					break;
 				case 'a':
 					printf("WE ARE THE DEFAULT \n");
@@ -117,19 +112,41 @@ int main(int argc, char **argv)
 			}
 			else if( (p - argv[argnum]) == 0 ) 
 			{
+				//STDIN BY DEFAULT?  IF IT GETS HERE IT should change to filename.
 				printf("|File|%s|\n", p);
+				
+
 				strcpy(filename, p);
 				printf("Filename: [%s] Option: [%c]\n", filename, option);
-				add(words, wordcount, filename);
+				add(words, &wordcount, filename);
 				printf("wordcount: [%d] \n", wordcount);
 				
 				break;
 			}
+			
 		}
 	}
+	
+	//IF NO FILENAME WAS GIVEN
+	printf("Filename: [%s] \n", filename);
+	if (strcmp(filename, "stdin") == 0)
+	{
+		wordcount = 100;
+		words = malloc( wordcount * sizeof(char *));
+		if (words == NULL)
+		{
+			fprintf(stderr, "No memory for wordlist \n");
+			exit(4);
+		}
+		printf("Get input from a stdin\n");
+		add(words, &wordcount, filename);
+	}
+	
+	
 	printf("wordcount: [%d] printNum: [%d]\n", wordcount, printNum);
-	//qsort(words, printNum, sizeof(char *), compare);
-	printf("after qsort line 128\n");
+	//SORT WORDS BASED ON OPTION SELECTED
+	qsort(words, wordcount, sizeof(char *), compare);
+	printf("after qsort line 145\n");
 	
 	printf("Print words array\n");
 	
@@ -137,12 +154,12 @@ int main(int argc, char **argv)
 	{
 		if ( words[x] == NULL)
 		{
-			; //continue;
+			continue;
 		}
-		printf("Word %4d | %s \n", x, words[x]);
+		printf("Word %4d | %s \n", x + 1, words[x]);
 	}
 	
-	for (int x = 0; x < printNum ; x++)
+	for (int x = 0; x < wordcount ; x++)
 	{
 		free(words[x]);
 	}
@@ -151,126 +168,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-int scrabbleValue(const void * s, const void  * t)
-{	
-	const char **is = (const char **)s;
-	const char **it = (const char **)t;
-	return (scrabbleScore(*it) < scrabbleScore(*is));
-}
-
-int scrabbleScore(const char * word)
-{
-	int total = 0;
-	printf("Scrabble word: [%s] \n", word);
-	for (; word < word + strlen(word); word++)
-	{
-		switch (tolower(*word))
-		{
-			case 'a':
-			case 'e':
-			case 'i':
-			case 'l':
-			case 'n':
-			case 'o':
-			case 'r':
-			case 's':
-			case 't':
-			case 'u':
-				printf("letter: [%c] \n", *word);
-				total += 1;
-				break;
-			case 'd':
-			case 'g':
-				printf("letter: [%c] \n", *word);
-				total += 2;
-				break;
-			case 'b':
-			case 'c':
-			case 'm':
-			case 'p':
-				printf("letter: [%c] \n", *word);
-				total += 3;
-				break;
-			case 'f':
-			case 'h':
-			case 'v':
-			case 'w':
-			case 'y':
-				printf("letter: [%c] \n", *word);
-				total += 4;
-				break;
-			case 'k':
-				printf("letter: [%c] \n", *word);
-				total += 5;
-				break;
-			case 'j':
-			case 'x':
-				printf("letter: [%c] \n", *word);
-				total += 8;
-				break;
-			case 'q':
-			case 'z':
-				printf("letter: [%c] \n", *word);
-				total += 10;
-				break;
-			default:
-				printf("not a scrabble character: %c \n", *word);
-				break;
-				
-		}
-	}
-	printf("Total value for %s is %d \n", word, total);
-	return total;
-}
-
-int byNumberValue(const void * s, const void  * t)
-{	
-	const char **is = (const char **)s;
-	const char **it = (const char **)t;
-	return (atoi(*it) < atoi(*is));
-}
-
-
-int compareLength(const void * s, const void  * t)
-{
-	const char **is = (const char **)s;
-	const char **it = (const char **)t;
-	return (strlen(*it) < strlen(*is));
-}
-
-int alphaReverse(const void * s, const void  * t)
-{
-	const char **is = (const char **)s;
-	const char **it = (const char **)t;
-	return strcmp(*it, *is);
-}
-
-int alphaForward(const void * s, const void  * t)
-{	
-	const char **is = (const char **)s;
-	const char **it = (const char **)t;
-	return (strcmp(*is, *it));
-}
-
-void printHelp(void)
-{
-	puts("Usage:  wordsorter <options> <filename> <filenames...>\n"
-		 "options:\n\n"
-		 "\t-l 		-sort by word length\n"
-		 "\t-c <n>	\t-print n number of lines.\n"
-		 "\t-r		-reverse sort order\n"
-		 "\t-s 		-sort based on words value in Scrabble\n"
-		 "\t-a		-lexigraphical (default) sort\n"
-		 "\t-n		-sort in numerical value order\n"
-		 "\t-u		-print only unique words\n"
-		 "\t-h		-print this help menu\n"
-		 "\t-p		-print words with no punctuation\n"
-		 "\n\t Option selected will be most recent( last option on command line)\n"
-		 "\t Option -r will be canceled upon pairs of reverse sort calls\n\n"); 
-		
-}
-
-void addUniqueWords(char **words, int count, char * filename)
+void addUniqueWords(char **words, int * count, char * filename)
 {
 	FILE *fp;
 	char input[100], *p, delims[] = " \t\n";
@@ -308,7 +206,7 @@ void addUniqueWords(char **words, int count, char * filename)
 			printf("before malloc| size of p: %ld\n", sizeof(p));
 			words[num] = (char *) malloc(sizeof(p));
 			printf("line 303: Token %d| %s \n", num, p);
-			if ( num == count)
+			if ( num == *count) 
 			{
 				fprintf(stderr,"Out of memory \n");
 				return;
@@ -319,12 +217,17 @@ void addUniqueWords(char **words, int count, char * filename)
 		}
 
 	}
-	printf("here\n");
+	printf("in addUnique %d wordcount %d num\n", *count , num);
+	if (*count != num)
+	{
+		*count += (*count + num);
+		printf("in addUnique %d wordcount %d num\n", *count , num);
+	}
 	fclose(fp);
 	return;
 }
 
-void addWords(char **words, int count, char * filename)
+void addWords(char **words, int * count, char * filename)
 {
 	FILE *fp;
 	char input[100], *p, delims[] = " \t\n";
@@ -334,6 +237,7 @@ void addWords(char **words, int count, char * filename)
 	if (fp == NULL)
 	{
 		fprintf(stderr, "%s could not open\n", filename);
+		return;
 	}
 	
 	printf("in addwords num = %d \n", num);
@@ -346,7 +250,7 @@ void addWords(char **words, int count, char * filename)
 			printf("before malloc| size of p: [%s]\n", p);
 			words[num] = (char *) malloc(sizeof(p));
 			printf("Token %d| %s \n", num, p);
-			if ( num == count)
+			if ( num == *count)
 			{
 				fprintf(stderr,"Out of memory \n");
 				return;
@@ -356,6 +260,7 @@ void addWords(char **words, int count, char * filename)
 			p = strtok(NULL, delims);
 		}
 	}
+	printf("in addUnique %d wordcount %d num\n", *count , num);
 	fclose(fp);
 	return;
 }
