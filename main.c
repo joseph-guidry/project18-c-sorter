@@ -1,18 +1,18 @@
 #include "wordsort.h"
 
-void addWords(char **words, int * count, char * filename);
-void addUniqueWords(char **words, int * count, char * filename);
+void addWords(char **words, int count, char * filename, int * totalNum);
+void addUniqueWords(char **words, int count, char * filename, int * totalNum);
 
 
 int main(int argc, char **argv)
 {
 	int wordcount;
-	int argnum = 0, rev = 0, printNum; 
+	int argnum = 0, rev = 0, printNum, totalNum; 
 	char **words, *p, option = 'a';
 	char filename[50]; //, input[50], delims[] = {" \t\n"}, optpdelims[] = {" \t\n,.:;'\"!@#$%^&*()+-_"};
 	
 	//FUNCTION POINTERS USED BASED ON OPTIONS
-	void (*add)(char**, int *, char *) = addWords;
+	void (*add)(char**, int , char *, int *) = addWords;
 	int (*compare)(const void * s, const void  * t) = alphaForward; 
 	int (*prevop)();
 	
@@ -118,7 +118,7 @@ int main(int argc, char **argv)
 
 				strcpy(filename, p);
 				printf("Filename: [%s] Option: [%c]\n", filename, option);
-				add(words, &wordcount, filename);
+				add(words, wordcount, filename, &totalNum);
 				printf("wordcount: [%d] \n", wordcount);
 				
 				break;
@@ -139,13 +139,14 @@ int main(int argc, char **argv)
 			exit(4);
 		}
 		printf("Get input from a stdin\n");
-		add(words, &wordcount, filename);
+		add(words, wordcount, filename, &totalNum);
 	}
 	
 	
-	printf("wordcount: [%d] printNum: [%d]\n", wordcount, printNum);
+	
+	printf("wordcount: [%d] printNum: [%d] totalNum [%d]\n", wordcount, printNum, totalNum);
 	//SORT WORDS BASED ON OPTION SELECTED
-	qsort(words, wordcount, sizeof(char *), compare);
+	qsort(words, totalNum, sizeof(char *), compare);
 	printf("after qsort line 145\n");
 	
 	printf("Print words array\n");
@@ -168,11 +169,13 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void addUniqueWords(char **words, int * count, char * filename)
+void addUniqueWords(char **words, int count, char * filename, int * totalNum)
 {
 	FILE *fp;
 	char input[100], *p, delims[] = " \t\n";
 	static int num = 0;
+	int start = num;
+	
 	fp = fopen(filename, "r");
 	if (fp == NULL)
 	{
@@ -206,7 +209,7 @@ void addUniqueWords(char **words, int * count, char * filename)
 			printf("before malloc| size of p: %ld\n", sizeof(p));
 			words[num] = (char *) malloc(sizeof(p));
 			printf("line 303: Token %d| %s \n", num, p);
-			if ( num == *count) 
+			if ( num == count) 
 			{
 				fprintf(stderr,"Out of memory \n");
 				return;
@@ -217,22 +220,18 @@ void addUniqueWords(char **words, int * count, char * filename)
 		}
 
 	}
-	printf("in addUnique %d wordcount %d num\n", *count , num);
-	if (*count != num)
-	{
-		*count += (*count + num);
-		printf("in addUnique %d wordcount %d num\n", *count , num);
-	}
+	printf("in addUnique %d wordcount %d num\n", count , num);
+	*totalNum +=( num - start);
 	fclose(fp);
 	return;
 }
 
-void addWords(char **words, int * count, char * filename)
+void addWords(char **words, int count, char * filename, int * totalNum)
 {
 	FILE *fp;
 	char input[100], *p, delims[] = " \t\n";
 	static int num = 0;
-	
+	int start = num;
 	fp = fopen(filename, "r");
 	if (fp == NULL)
 	{
@@ -250,7 +249,7 @@ void addWords(char **words, int * count, char * filename)
 			printf("before malloc| size of p: [%s]\n", p);
 			words[num] = (char *) malloc(sizeof(p));
 			printf("Token %d| %s \n", num, p);
-			if ( num == *count)
+			if ( num == count)
 			{
 				fprintf(stderr,"Out of memory \n");
 				return;
@@ -260,7 +259,8 @@ void addWords(char **words, int * count, char * filename)
 			p = strtok(NULL, delims);
 		}
 	}
-	printf("in addUnique %d wordcount %d num\n", *count , num);
+	*totalNum +=( num - start);
+ 	printf("in addUnique %d wordcount %d num %d totalnum \n", count , num, *totalNum);
 	fclose(fp);
 	return;
 }
