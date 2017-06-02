@@ -1,21 +1,19 @@
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-int wordCounter(int argc, char **argv);
-void countWords(FILE * fp, int * total);
+#include "wordsort.h"
 
 int main(int argc, char **argv)
 {
 	int wordcount;
 	int argnum = 0, rev = 0; 
-	char **words, *p, option;
+	char **words, *p, option = 'a', prevop;
 	//char filename[50];
 	//char functionOp;
 	
-	wordcount = wordCounter(argc, argv);
+	wordcount = wordCounter(argc, argv + 1);
 	printf("End: [%d] \n", wordcount);
-
+//exit(10);
 	words = malloc(wordcount * sizeof(words));
 	if (words == NULL)
 	{
@@ -33,6 +31,7 @@ int main(int argc, char **argv)
 			if(*p == '-')
 			{
 				printf("I am an option\n");
+				prevop = option;
 				option = *++p;
 				printf("This is the option: %c \n", option);
 				switch (option)
@@ -49,7 +48,7 @@ int main(int argc, char **argv)
 				case 'r':
 				//MULTIPLE CALLS WILL CANCEL THE USE OF THIS OPTION
 				
-					// SAVE PREVIOUS OPTION;
+					printf("%c \n", prevop);
 					rev++;
 					if (rev % 2 == 1)
 					{
@@ -59,6 +58,7 @@ int main(int argc, char **argv)
 					else 
 					{
 						printf("UNREVERSE\n");
+						option = prevop;
 					}
 					break;
 				case 's':
@@ -81,45 +81,27 @@ int main(int argc, char **argv)
 				}
 				break;		
 			}
+			/*printf("after switch\n");
 			
+			if( (*p != '-') &&  ((p - argv[argnum]) == 0 ) )
+			{
+				//printf("|File|%s|\n", p);
+				strcpy(filename, p);
+				break;
+				//MOVE POINTER TO END OF ARG?
+			}
+
+			//printf("|%c|%c|\n", *p, *p + 1);
+			*/
 		}
-		
+		printf("Option: [%c]\n", option);
+		/*
+		printf("GET WORDS FROM FILENAME\n");
+		printf("SORT WORDS\n");
+		printf("PRITN WORDS\n");
+		printf("next arg\n");
+		*/
 	}
 	
 	return 0;
-}
-
-int wordCounter(int argc, char **argv)
-{
-	FILE *fp;
-	int totalwords = 0;
-	printf("in wordCounter\n");
-	while (--argc > 0)
-	{
-
-		if (*argv++[0] != '-')
-		{
-			printf("line 25 [%s]\n", *argv);
-			if ( (fp = fopen(*argv , "r")) != NULL)
-			{
-				countWords(fp, &totalwords);
-			}
-		}
-	}
-	printf("%d \n", totalwords);
-	return totalwords;
-}
-
-void countWords(FILE * fp, int * total)
-{
-	char letter;
-	printf("in countWords5\n");
-	while( (letter = getc(fp)) != EOF)
-    {
-        if ( (letter == ' ') || (letter =='\n') || (letter == '\t') )
-        {
-            (*total)++;
-        }
-    }
-    printf("Words: [%d] \n", *total);
 }

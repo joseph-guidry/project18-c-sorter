@@ -4,8 +4,8 @@
 
 all: wordsorter
 
-wordsorter: wordsorter.c
-	gcc -Wall -Wextra -Wpedantic -Wwrite-strings -Wstack-usage=1024 -Wfloat-equal -Waggregate-return -Winline -o wordsorter wordsorter.c
+wordsorter: main.c wordCount.o
+	gcc -Wall -Wextra -Wpedantic -Wwrite-strings -Wstack-usage=1024 -Wfloat-equal -Waggregate-return -Winline -o main main.c wordCount.o
     
 clean:
 	rm -rf ./*
