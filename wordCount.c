@@ -1,4 +1,6 @@
 #include "wordsort.h"
+#include <stdlib.h>
+#include <ctype.h>
 
 int wordCounter(int argc, char **argv)
 {
@@ -29,14 +31,18 @@ int wordCounter(int argc, char **argv)
 void countWords(FILE * fp, int * total)
 {
 	char letter;
+	char prevLetter = ' ';
 	printf("in countWords\n");
 	while( (letter = getc(fp)) != EOF)
     {
-    	printf("[%c] \n", letter);
-        if ( (letter == ' ') || (letter =='\n') || (letter == '\t') )
+    	
+    	printf("[%c] [%c]\n", letter, prevLetter);
+        if ( !(isspace(letter) )  &&  ( (prevLetter == ' ') || (prevLetter =='\n') || (prevLetter == '\t')))
         {
+        	printf("count it [%c]\n", letter);
             (*total)++;
         }
+        prevLetter = letter;
     }
     printf("Words: [%d] \n", *total);
 }
