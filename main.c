@@ -1,20 +1,22 @@
 #include "wordsort.h"
 
-void addWords(char **words, int count, char * filename, int * totalNum);
-void addUniqueWords(char **words, int count, char * filename, int * totalNum);
+void addWords(char **words, int count, FILE * file, int * totalNum, char *delims);
+void addUniqueWords(char **words, int count, FILE * file, int * totalNum, char *delims);
 
 
 int main(int argc, char **argv)
 {
+	FILE *fp = stdin;
 	int wordcount;
-	int argnum = 0, rev = 0, printNum, totalNum; 
+	int argnum = 0, rev = 0, printNum, totalNum = 0, fileNumber = 0; 
 	char **words, *p, option = 'a';
-	char filename[50]; //, input[50], delims[] = {" \t\n"}, optpdelims[] = {" \t\n,.:;'\"!@#$%^&*()+-_"};
+	char filename[50], delims[] = {" \t\n"}; //optpdelims[] = {" \t\n,.:;'\"!@#$%^&*()+-_"};
 	
 	//FUNCTION POINTERS USED BASED ON OPTIONS
-	void (*add)(char**, int , char *, int *) = addWords;
+	void (*add)(char**, int , FILE *, int *, char *) = addWords;
 	int (*compare)(const void * s, const void  * t) = alphaForward; 
 	int (*prevop)();
+	
 	
 	
 	//strcpy(filename, stdin);
@@ -22,7 +24,13 @@ int main(int argc, char **argv)
 	printf("End: [%d] \n", wordcount);
 	words = malloc(wordcount * sizeof(words));
 	
-	//Default is to print all words -> Wordcount can change
+	for (int x = 1; x < argc; x++)
+	{
+		if (argv[x][0] != '-')
+			fileNumber++;
+	}
+	
+	//Default is to print all words
 	printNum = wordcount;
 	
 	if (words == NULL)
@@ -60,6 +68,8 @@ int main(int argc, char **argv)
 				case 'r':
 				//MULTIPLE CALLS WILL CANCEL THE USE OF THIS OPTION
 					rev++;
+					rev = rev % 2;
+					/*
 					if (rev % 2 == 1)
 					{
 						printf("LETS REVERSE %d\n", rev);
@@ -75,7 +85,7 @@ int main(int argc, char **argv)
 						printf("UNREVERSE %d\n", rev);
 						compare = prevop; 
 					}
-					
+					*/
 					break;
 				case 's':
 					printf("LETS SCRABBLE IT UP\n");
@@ -117,20 +127,30 @@ int main(int argc, char **argv)
 				
 
 				strcpy(filename, p);
+				
+				FILE *fp;
+				
+				fp = fopen(filename, "r");
+				if (fp == NULL)
+				{
+					fprintf(stderr, "%s could not open\n", filename);
+					break;
+				}
+				
 				printf("Filename: [%s] Option: [%c]\n", filename, option);
-				add(words, wordcount, filename, &totalNum);
+				add(words, wordcount, fp, &totalNum, delims);
 				printf("wordcount: [%d] \n", wordcount);
 				
 				break;
 			}
-			
 		}
 	}
 	
-	//IF NO FILENAME WAS GIVEN
-	printf("Filename: [%s] \n", filename);
-	if (strcmp(filename, "stdin") == 0)
+	//TO GET WORDS FROM THE STDIN
+	if (fileNumber < 1)
 	{
+		//IF NO FILENAME WAS GIVEN
+								
 		wordcount = 100;
 		words = malloc( wordcount * sizeof(char *));
 		if (words == NULL)
@@ -139,27 +159,39 @@ int main(int argc, char **argv)
 			exit(4);
 		}
 		printf("Get input from a stdin\n");
-		add(words, wordcount, filename, &totalNum);
-	}
-	
-	
+		add(words, wordcount, fp, &totalNum, delims);
+		printNum = totalNum;
+	}				
 	
 	printf("wordcount: [%d] printNum: [%d] totalNum [%d]\n", wordcount, printNum, totalNum);
 	//SORT WORDS BASED ON OPTION SELECTED
 	qsort(words, totalNum, sizeof(char *), compare);
 	printf("after qsort line 145\n");
 	
-	printf("Print words array\n");
+	printf("Print words array|printNum = %d \n", printNum);
 	
-	for (int x = 0; x < printNum ; x++)
+	if (rev == 1)
 	{
-		if ( words[x] == NULL)
+		for ( int x = printNum -1; x >= 0; x--)
 		{
-			continue;
+			if ( words[x] == NULL)
+			{
+				continue;
+			}
+			printf("Word %4d | %s \n", x + 1, words[x]);
 		}
-		printf("Word %4d | %s \n", x + 1, words[x]);
 	}
-	
+	else
+	{
+		for (int x = 0; x < printNum ; x++)
+		{
+			if ( words[x] == NULL)
+			{
+				continue;
+			}
+			printf("Word %4d | %s \n", x + 1, words[x]);
+		}
+	}
 	for (int x = 0; x < wordcount ; x++)
 	{
 		free(words[x]);
@@ -169,19 +201,14 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void addUniqueWords(char **words, int count, char * filename, int * totalNum)
+void addUniqueWords(char **words, int count, FILE * file, int * totalNum, char *delims)
 {
-	FILE *fp;
-	char input[100], *p, delims[] = " \t\n";
+	char input[100], *p; // delims[] = " \t\n";
 	static int num = 0;
 	int start = num;
 	
-	fp = fopen(filename, "r");
-	if (fp == NULL)
-	{
-		fprintf(stderr, "%s could not open\n", filename);
-	}
-	while ( fgets(input, 100, fp) )
+	
+	while ( fgets(input, 100, file) )
 	{
 		p = strtok(input, delims);
 		while ( p != NULL)
@@ -222,25 +249,17 @@ void addUniqueWords(char **words, int count, char * filename, int * totalNum)
 	}
 	printf("in addUnique %d wordcount %d num\n", count , num);
 	*totalNum +=( num - start);
-	fclose(fp);
+	fclose(file);
 	return;
 }
 
-void addWords(char **words, int count, char * filename, int * totalNum)
+void addWords(char **words, int count, FILE * file, int * totalNum, char *delims)
 {
-	FILE *fp;
-	char input[100], *p, delims[] = " \t\n";
+	char input[100], *p;
 	static int num = 0;
 	int start = num;
-	fp = fopen(filename, "r");
-	if (fp == NULL)
-	{
-		fprintf(stderr, "%s could not open\n", filename);
-		return;
-	}
-	
 	printf("in addwords num = %d \n", num);
-	while ( fgets(input, 100, fp) )
+	while ( fgets(input, 100, file) )
 	{
 		p = strtok(input, delims);
 		printf("on line 336|p: [%s]\n", p);
@@ -261,8 +280,6 @@ void addWords(char **words, int count, char * filename, int * totalNum)
 	}
 	*totalNum +=( num - start);
  	printf("in addUnique %d wordcount %d num %d totalnum \n", count , num, *totalNum);
-	fclose(fp);
+	fclose(file);
 	return;
 }
-
-
