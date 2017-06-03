@@ -82,9 +82,7 @@ int scrabbleScore(const char * word)
 #ifdef DEBUG
 				printf("not a scrabble character: %c \n", *word);
 #endif
-
 				break;
-				
 		}
 	}
 #ifdef DEBUG
@@ -99,7 +97,6 @@ int byNumberValue(const void * s, const void  * t)
 	const char **it = (const char **)t;
 	return (atoi(*it) < atoi(*is));
 }
-
 
 int compareLength(const void * s, const void  * t)
 {

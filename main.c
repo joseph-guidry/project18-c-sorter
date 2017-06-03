@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 	int wordcount;
 	int argnum = 0, rev = 0, printNum, totalNum = 0, fileNumber = 0; 
 	char **words, *p, option = 'a';
-	char filename[50], delims[22]; //optpdelims[] = {" \t\n,.:;'\"!@#$%^&*()+-_"};
+	char filename[50], delims[22];
 	
 	strcpy(delims, " \t\n");
 
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 					compare = byNumberValue;
 					break;
 				case 'r':
-				//MULTIPLE CALLS WILL CANCEL THE USE OF THIS OPTION
+					//MULTIPLE CALLS WILL CANCEL THE USE OF THIS OPTION
 					rev++;
 					rev = rev % 2;
 					break;
@@ -113,11 +113,6 @@ int main(int argc, char **argv)
 #endif
 					add = addUniqueWords;
 					break;
-/*
-				case 'p':
-					strcpy(delims, " \t\n,.:;'!@#$%^&*()+-_");
-					break;
-*/
 				default:
 #ifdef DEBUG
 					printf("I DONT KNOW THIS OPTION\n");
@@ -132,12 +127,9 @@ int main(int argc, char **argv)
 #ifdef DEBUG
 				printf("|File|%s|\n", p);
 #endif
-				
-
 				strcpy(filename, p);
 				
 				FILE *fp;
-				
 				fp = fopen(filename, "r");
 				if (fp == NULL)
 				{
@@ -151,7 +143,6 @@ int main(int argc, char **argv)
 #ifdef DEBUG
 				printf("wordcount: [%d] \n", wordcount);
 #endif
-				
 				break;
 			}
 		}
@@ -225,7 +216,7 @@ int main(int argc, char **argv)
 
 void addUniqueWords(char **words, int count, FILE * file, int * totalNum, char *delims)
 {
-	char input[100], *p; // delims[] = " \t\n";
+	char input[100], *p;
 	static int num = 0;
 	int start = num;
 	
@@ -235,7 +226,6 @@ void addUniqueWords(char **words, int count, FILE * file, int * totalNum, char *
 		p = strtok(input, delims);
 		while ( p != NULL)
 		{
-			//ADD CHECK AGAIN WORDS ARRAY
 #ifdef DEBUG
 			printf("line 289: Token %d| %s \n", num, p);
 #endif
@@ -260,7 +250,6 @@ void addUniqueWords(char **words, int count, FILE * file, int * totalNum, char *
 				continue;
 			}
 			
-			//BELOW = ORIGINAL
 #ifdef DEBUG
 			printf("before malloc| size of p: %ld\n", sizeof(p));
 #endif
