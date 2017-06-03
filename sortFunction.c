@@ -10,7 +10,9 @@ int scrabbleValue(const void * s, const void  * t)
 int scrabbleScore(const char * word)
 {
 	int total = 0;
+#ifdef DEBUG
 	printf("Scrabble word: [%s] \n", word);
+#endif
 	for (; word < word + strlen(word); word++)
 	{
 		switch (tolower(*word))
@@ -25,19 +27,25 @@ int scrabbleScore(const char * word)
 			case 's':
 			case 't':
 			case 'u':
+#ifdef DEBUG
 				printf("letter: [%c] \n", *word);
+#endif
 				total += 1;
 				break;
 			case 'd':
 			case 'g':
+#ifdef DEBUG
 				printf("letter: [%c] \n", *word);
+#endif
 				total += 2;
 				break;
 			case 'b':
 			case 'c':
 			case 'm':
 			case 'p':
+#ifdef DEBUG
 				printf("letter: [%c] \n", *word);
+#endif
 				total += 3;
 				break;
 			case 'f':
@@ -45,30 +53,43 @@ int scrabbleScore(const char * word)
 			case 'v':
 			case 'w':
 			case 'y':
+#ifdef DEBUG
 				printf("letter: [%c] \n", *word);
+#endif
 				total += 4;
 				break;
 			case 'k':
+#ifdef DEBUG
 				printf("letter: [%c] \n", *word);
+#endif
 				total += 5;
 				break;
 			case 'j':
 			case 'x':
+#ifdef DEBUG
 				printf("letter: [%c] \n", *word);
+#endif
 				total += 8;
 				break;
 			case 'q':
 			case 'z':
+#ifdef DEBUG
 				printf("letter: [%c] \n", *word);
+#endif
 				total += 10;
 				break;
 			default:
+#ifdef DEBUG
 				printf("not a scrabble character: %c \n", *word);
+#endif
+
 				break;
 				
 		}
 	}
+#ifdef DEBUG
 	printf("Total value for %s is %d \n", word, total);
+#endif
 	return total;
 }
 

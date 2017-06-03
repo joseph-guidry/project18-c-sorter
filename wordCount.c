@@ -6,14 +6,20 @@ int wordCounter(int argc, char **argv)
 {
 	FILE *fp;
 	int totalwords = 0;
-	//printf("in wordCounter\n");
+#ifdef DEBUG
+	printf("in wordCounter\n");
+#endif
 	while (--argc > 0)
 	{
-		//printf("argc = %d \n", argc);
-		//printf("line 10 [%s]\n", argv[0]);
+#ifdef DEBUG
+		printf("argc = %d \n", argc);
+		printf("line 10 [%s]\n", argv[0]);
+#endif
 		if (*argv[0] != '-')
 		{
-			//printf("line 13 [%s]\n", *argv);
+#ifdef DEBUG
+			printf("line 13 [%s]\n", *argv);
+#endif
 			if ( (fp = fopen(*argv , "r")) != NULL)
 			{
 				countWords(fp, &totalwords);
@@ -22,7 +28,9 @@ int wordCounter(int argc, char **argv)
 		argv++;
 		
 	}
-	//printf("%d \n", totalwords);
+#ifdef DEBUG
+	printf("%d \n", totalwords);
+#endif
 	return totalwords;
 }
 
@@ -30,17 +38,24 @@ void countWords(FILE * fp, int * total)
 {
 	char letter;
 	char prevLetter = ' ';
-	//printf("in countWords\n");
+#ifdef DEBUG
+	printf("in countWords\n");
+#endif
 	while( (letter = getc(fp)) != EOF)
     {
-    	
-    	//printf("[%c] [%c]\n", letter, prevLetter);
+#ifdef DEBUG
+    	printf("[%c] [%c]\n", letter, prevLetter);
+#endif
         if ( !(isspace(letter) )  &&  ( (prevLetter == ' ') || (prevLetter =='\n') || (prevLetter == '\t')))
         {
-        	//printf("count it [%c]\n", letter);
+#ifdef DEBUG
+        	printf("count it [%c]\n", letter);
+#endif
             (*total)++;
         }
         prevLetter = letter;
     }
-    //printf("Words: [%d] \n", *total);
+#ifdef DEBUG
+    printf("Words: [%d] \n", *total);
+#endif
 }
