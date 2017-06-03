@@ -7,7 +7,7 @@ void addUniqueWords(char **words, int count, FILE * file, int * totalNum, char *
 int main(int argc, char **argv)
 {
 	FILE *fp = stdin;
-	int wordcount, counter = 1 ;
+	int wordcount, counter = 1, revstep;
 	int argnum = 0, rev = 0, printNum, totalNum = 0, fileNumber = 0; 
 	char **words, *p, option = 'a';
 	char filename[50], delims[22];
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 
 	wordcount = wordCounter(argc, argv + 1);
 #ifdef DEBUG
-	printf("End: [%d] \n", wordcount* sizeof(words));
+	printf("End: [%ld] \n", wordcount* sizeof(words));
 #endif
 	words = (char **) malloc(wordcount * sizeof(words));
 
@@ -183,22 +183,23 @@ int main(int argc, char **argv)
 	
 	if (rev == 1)
 	{
+		revstep = totalNum;
 		for ( int x = printNum -1; x >= 0; x--)
 		{
-			if ( words[x] == NULL)
+			if ( x >= totalNum)
 			{
-				continue;
+				break;
 			}
-			printf("Word %4d | %s \n", counter++, words[--totalNum]);
+			printf("Word %4d | %s \n", counter++, words[--revstep]);
 		}
 	}
 	else
 	{
 		for (int x = 0; x < printNum ; x++)
 		{
-			if ( words[x] == NULL)
+			if ( x >= totalNum)
 			{
-				continue;
+				break;
 			}
 			printf("Word %4d | %s \n", counter++, words[x]);
 		}
@@ -212,7 +213,6 @@ int main(int argc, char **argv)
 		free(words[x]);
 	}
 	free(words);
-	
 	
 	return 0;
 }
@@ -299,7 +299,7 @@ void addWords(char **words, int count, FILE * file, int * totalNum, char *delims
 		while ( p != NULL)
 		{
 #ifdef DEBUG
-			printf("before malloc| size of p: [%s]\n", strlen(p));
+			printf("before malloc| size of p: [%lu]\n", strlen(p));
 #endif
 			words[num] = (char *) malloc(sizeof(p));
 #ifdef DEBUG
