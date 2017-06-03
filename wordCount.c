@@ -29,7 +29,7 @@ int wordCounter(int argc, char **argv)
 #ifdef DEBUG
 	printf("%d \n", totalwords);
 #endif
-	fclose(fp);
+	//fclose(fp);
 	return totalwords;
 }
 
