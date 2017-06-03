@@ -1,6 +1,4 @@
 #include "wordsort.h"
-#include <stdlib.h>
-#include <ctype.h>
 
 int wordCounter(int argc, char **argv)
 {

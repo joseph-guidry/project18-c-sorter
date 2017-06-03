@@ -125,6 +125,7 @@ void printHelp(void)
 		 "options:\n\n"
 		 "\t-l 		-sort by word length\n"
 		 "\t-c <n>	\t-print n number of lines.\n"
+		 "\t	    \t( < n > must be 1 or greater)\n"
 		 "\t-r		-reverse sort order\n"
 		 "\t-s 		-sort based on words value in Scrabble\n"
 		 "\t-a		-lexigraphical (default) sort\n"
