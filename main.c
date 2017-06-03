@@ -18,13 +18,14 @@ int main(int argc, char **argv)
 	//FUNCTION POINTERS USED BASED ON OPTIONS
 	void (*add)(char**, int , FILE *, int *, char *) = addWords;
 	int (*compare)(const void * s, const void  * t) = alphaForward; 
-	
+
+
 	wordcount = wordCounter(argc, argv + 1);
 #ifdef DEBUG
 	printf("End: [%d] \n", wordcount* sizeof(words));
 #endif
-	words = malloc(wordcount * sizeof(words));
-	
+	words = (char **) malloc(wordcount * sizeof(words));
+
 	for (int x = 1; x < argc; x++)
 	{
 		if (argv[x][0] != '-')
@@ -188,7 +189,7 @@ int main(int argc, char **argv)
 			{
 				continue;
 			}
-			printf("Word %4d | %s \n", counter++, words[x]);
+			printf("Word %4d | %s \n", counter++, words[--totalNum]);
 		}
 	}
 	else
@@ -206,7 +207,6 @@ int main(int argc, char **argv)
 #ifdef DEBUG
 	printf("After printing words\n");
 #endif
-	printf("%d \n", totalNum);
 	for (int x = 0; x < totalNum; x++)
 	{
 		free(words[x]);
